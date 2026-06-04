@@ -1,7 +1,12 @@
+const { default: mongoose } = require("mongoose");
 const Post = require("./post.model")
 
 exports.createPost = async (req , resp , next) => {
     try{
+        const user = req.user;
+        if(!user){
+            return next(new Error(""))
+        }
         const {content} = req.body;
         const filename = req.file?.filename
 
@@ -10,6 +15,8 @@ exports.createPost = async (req , resp , next) => {
         }
 
         const post = await Post.create({
+            userId : user._id,
+            username : user.name,
             content,
             filename,
         })
@@ -50,6 +57,31 @@ exports.getAllPosts = async (req , resp , next) => {
             page : pageNum,
             count : count,
             data : posts,
+        })
+    } catch(err){
+        return next(err)
+    }
+}
+
+
+exports.getPostById = async (req , resp , next) => {
+    try{
+        const {id} = req.params;
+        if(!mongoose.Types.ObjectId.isValid(id)){
+            return next(new Error(""))
+        }
+
+        const post = await Post.findById(id)
+
+        if(!post){
+            return next(new Error(""))
+        }
+
+        return resp.status(200).json({
+            success : true,
+            message : "Post fetched successfully",
+            likeCount : post.likes.length,
+            data : post,
         })
     } catch(err){
         return next(err)

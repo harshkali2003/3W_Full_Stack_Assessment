@@ -1,17 +1,19 @@
 const { default: mongoose } = require("mongoose");
 const Post = require("./post.model")
 
+const AppError = require("../../common/errors/global.error")
+
 exports.createPost = async (req , resp , next) => {
     try{
         const user = req.user;
         if(!user){
-            return next(new Error(""))
+            return next(new AppError("login first" , 401))
         }
         const {content} = req.body;
         const filename = req.file?.filename
 
         if(!content?.trim() && !filename){
-            return next(new Error(""))
+            return next(new AppError("content body can't be left empty" , 400))
         }
 
         const post = await Post.create({
@@ -46,7 +48,7 @@ exports.getAllPosts = async (req , resp , next) => {
         .sort({createdAt : -1})
 
         if(posts.length === 0){
-            return next(new Error(""))
+            return next(new AppError("No Post found" , 404))
         }
 
         const count = await Post.countDocuments()
@@ -68,13 +70,13 @@ exports.getPostById = async (req , resp , next) => {
     try{
         const {id} = req.params;
         if(!mongoose.Types.ObjectId.isValid(id)){
-            return next(new Error(""))
+            return next(new AppError("Invalid ID" , 400))
         }
 
         const post = await Post.findById(id)
 
         if(!post){
-            return next(new Error(""))
+            return next(new AppError("No Post found" , 404))
         }
 
         return resp.status(200).json({

@@ -2,6 +2,7 @@ const bcrypt = require("bcrypt")
 const User = require("./user.model")
 
 const AppError = require("../../common/errors/global.error")
+const {generateAccessToken} = require("../../common/middlewares/jwt.middleware")
 
 exports.register = async (req , resp , next) => {
     try{
@@ -50,9 +51,15 @@ exports.login = async (req , resp , next) => {
             return next(new AppError("Wrong password" , 401))
         }
 
+        const result = existingUser.toObject()
+        delete result.password
+
+        const token = generateAccessToken(result)
+
         return resp.status(201).json({
             success : true,
             message : "user has logged-in successfully",
+            token : token,
         })
     } catch(err){
         return next(err)

@@ -27,7 +27,7 @@ exports.toggleLike = async (req, resp, next) => {
     let message;
 
     if (existingIndex !== -1) {
-      post.likes.splice(existingLikeIndex, 1);
+      post.likes.splice(existingIndex, 1);
       message = "Post unliked";
     } else {
       post.likes.push({

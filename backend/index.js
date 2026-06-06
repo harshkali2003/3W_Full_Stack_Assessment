@@ -1,5 +1,6 @@
 const express = require("express")
 const cors = require("cors")
+const path = require("path")
 const app = express()
 
 const User = require("./modules/user/user.route")
@@ -19,6 +20,7 @@ app.use(cors({
     credentials : true,
     optionsSuccessStatus : 200,
 }))
+app.use("/uploads", express.static(path.join(__dirname , "../uploads")));
 
 app.use("/auth" , User)
 app.use("/post" , Post)
